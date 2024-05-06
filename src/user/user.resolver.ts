@@ -1,34 +1,38 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { UserService } from './user.service';
+import { Prisma } from '@prisma/client';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 
 @Resolver('User')
 export class UserResolver {
-  constructor(private readonly userService: UserService) {}
+  constructor(private userService: UserService) {}
 
-  @Mutation('createUser')
-  create(@Args('createUserInput') createUserInput: CreateUserInput) {
-    return this.userService.create(createUserInput);
-  }
-
-  @Query('user')
-  findAll() {
-    return this.userService.findAll();
-  }
-
-  @Query('user')
-  findOne(@Args('id') id: number) {
+  @Query()
+  async user(@Args('id') id: string) {
     return this.userService.findOne(id);
   }
 
-  @Mutation('updateUser')
-  update(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
-    return this.userService.update(updateUserInput.id, updateUserInput);
+  @Query()
+  async users() {
+    return this.userService.findAll();
   }
 
-  @Mutation('removeUser')
-  remove(@Args('id') id: number) {
-    return this.userService.remove(id);
+  @Mutation()
+  async createUser(@Args('input') input: CreateUserInput) {
+    return this.userService.create(input);
+  }
+
+  @Mutation()
+  async updateUser(
+    @Args('id') id: string,
+    @Args('input') input: UpdateUserInput,
+  ) {
+    return this.userService.update(id, input);
+  }
+
+  @Mutation()
+  async deleteUser(@Args('id') id: string) {
+    return this.userService.delete(id);
   }
 }
